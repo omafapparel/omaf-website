@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>OMAF Apparel — Custom & Sportswear</title>
+
+  <!-- Tailwind CDN for quick prototyping -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Custom CSS: accent gradient, small utilities -->
+  <style>
+    :root{
+      /* two-tone gradient: light highlight → base brand yellow */
+      --omaf-yellow-1: #F6F44A; /* lighter companion */
+      --omaf-yellow-2: #E8e62a; /* base requested color */
+      --omaf-focus: rgba(232, 230, 42, 0.18);
+      --page-bg: #FAFAFA;
+    }
+
+    html,body { background: var(--page-bg); }
+
+    /* gradient button */
+    .omaf-gradient {
+      background: linear-gradient(90deg, var(--omaf-yellow-1) 0%, var(--omaf-yellow-2) 100%);
+    }
+    .omaf-gradient-hover:hover {
+      filter: brightness(.95);
+    }
+
+    /* subtle outline for accessibility */
+    .focus-omaf:focus {
+      outline: 3px solid var(--omaf-focus);
+      outline-offset: 3px;
+    }
+
+    /* hero parallax — transform changes applied by JS */
+    .hero-bg {
+      background-image:
+        linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.55)),
+        url('Showroom.png');
+      background-size: cover;
+      background-position: center;
+      will-change: transform;
+    }
+
+    /* carousel styles */
+    .carousel-track{ display:flex; gap:1rem; scroll-behavior:smooth; -webkit-overflow-scrolling:touch; }
+    .no-scrollbar::-webkit-scrollbar{ display:none } .no-scrollbar{ -ms-overflow-style:none; scrollbar-width:none; }
+
+    .carousel-slide{ min-width: 280px; max-width: 340px; flex:0 0 auto; border-radius: 14px; overflow:hidden; background:white; box-shadow:0 8px 30px rgba(2,6,23,0.06); }
+
+    /* social icon accent color */
+    .omaf-icon { color: var(--omaf-yellow-2); }
+
+    /* utility for subtle card hover */
+    .card-hover:hover { transform: translateY(-8px); box-shadow: 0 18px 35px rgba(2,6,23,0.08); }
+
+    /* responsive tweak: make hero image slightly taller on large */
+    @media (min-width: 1024px){ .hero-image { height:420px } }
+  </style>
+</head>
+<body class="antialiased text-gray-900">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-black border-b border-gray-100 backdrop-blur">
+    <div class="flex gap-4 justify-between items-center px-6 py-4 mx-auto max-w-6xl">
+      <div class="flex gap-4 items-center">
+        <!-- Placeholder logo — replace with your SVG/PNG -->
+        <img src="Asset 1.svg" alt="OMAF Apparel" class="object-contain w-auto h-8" loading="lazy">
+        <!-- Favicon -->
+        <link rel="icon" type="image/svg+xml" href="Asset 2.svg">
+
+      </div>
+
+      <!-- Desktop nav -->
+      <nav class="hidden gap-6 items-center text-sm md:flex">
+        <a href="#home" class="text-white hover:text-omaf-yellow-2" data-i18n="nav_home">Home</a>
+        <a href="#services" class="text-white hover:text-omaf-yellow-2" data-i18n="nav_services">Services</a>
+        <a href="#how" class="text-white hover:text-omaf-yellow-2" data-i18n="nav_how">How to Order</a>
+        <a href="#customers" class="text-white hover:text-omaf-yellow-2" data-i18n="nav_customers">Customers</a>
+        <a href="#contact" class="text-white hover:text-omaf-yellow-2" data-i18n="nav_contact">Contact</a>
+      </nav>
+
+      <div class="flex gap-3 items-center">
+        <!-- language toggle -->
+        <div class="flex gap-1 items-center p-1 bg-white rounded-full border border-gray-100">
+          <button id="lang-en" aria-pressed="true" class="px-3 py-1 text-xs text-black rounded-full bg-omaf-gradient/10 focus-omaf">EN</button>
+          <button id="lang-bm" aria-pressed="false" class="px-3 py-1 text-xs text-gray-600 rounded-full hover:bg-gray-50 focus-omaf">BM</button>
+        </div>
+
+        <!-- CTA -->
+        <a href="#contact" class="inline-flex gap-2 items-center px-4 py-2 text-sm font-semibold text-black rounded-lg shadow-sm omaf-gradient omaf-gradient-hover focus-omaf">
+          <!-- small lightning icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M11 21l1-7H6l7-13v7h5l-6 13z"/></svg>
+          <span data-i18n="cta_order">Order Now</span>
+        </a>
+
+        <!-- mobile menu toggle -->
+        <button id="menu-btn" aria-expanded="false" class="p-2 text-gray-700 rounded-md md:hidden focus-omaf">
+          <svg id="menu-open" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/></svg>
+          <svg id="menu-close" xmlns="http://www.w3.org/2000/svg" class="hidden w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Mobile nav -->
+    <div id="mobile-nav" class="hidden border-t border-gray-100 md:hidden bg-white/95">
+      <div class="flex flex-col gap-3 px-6 py-4">
+        <a class="text-gray-700" href="#home" data-i18n="nav_home">Home</a>
+        <a class="text-gray-700" href="#services" data-i18n="nav_services">Services</a>
+        <a class="text-gray-700" href="#how" data-i18n="nav_how">How to Order</a>
+        <a class="text-gray-700" href="#customers" data-i18n="nav_customers">Customers</a>
+        <a class="text-gray-700" href="#contact" data-i18n="nav_contact">Contact</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main id="home" class="px-6 pb-16 mx-auto max-w-6xl">
+
+    <!-- HERO -->
+    <section class="overflow-hidden relative mt-8 rounded-3xl hero-bg" style="min-height:56vh;">
+      <div class="absolute inset-0 bg-gradient-to-b from-white/60 to-white/30"></div>
+
+      <div class="relative z-10 py-20 mx-auto max-w-5xl md:py-28">
+        <div class="grid grid-cols-1 gap-8 items-center md:grid-cols-2">
+          <div class="space-y-6 md:pr-6">
+            <div class="inline-flex gap-3 items-center px-3 py-1 text-sm rounded-full backdrop-blur bg-white/60">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-omaf-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 7 7 13 7 13s7-6 7-13c0-3.87-3.13-7-7-7z"/></svg>
+              <span id="hero-tag" class="text-sm font-medium" data-i18n="hero_tag">OMAF Apparel</span>
+            </div>
+
+            <h1 id="hero-heading" class="text-3xl font-extrabold tracking-tight leading-tight text-gray-900 md:text-4xl lg:text-5xl"></h1>
+            <p id="hero-sub" class="max-w-xl text-gray-600"></p>
+
+            <div class="flex flex-wrap gap-3 items-center">
+              <a href="#services" class="inline-flex gap-2 items-center px-4 py-2 text-sm text-gray-700 rounded-lg border border-gray-200 hover:bg-gray-50 focus-omaf" data-i18n="btn_services">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2 7h7l-5.5 4 2 7L12 16 6.5 20l2-7L3 9h7z"/></svg>
+                <span data-i18n="btn_services">View Services</span>
+              </a>
+
+              <a href="#contact" class="inline-flex gap-2 items-center px-4 py-2 text-sm font-semibold text-black rounded-lg omaf-gradient omaf-gradient-hover focus-omaf" data-i18n="cta_order2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M11 21l1-7H6l7-13v7h5l-6 13z"/></svg>
+                <span data-i18n="cta_order2">Order Now</span>
+              </a>
+            </div>
+
+            <!-- stats -->
+            <div class="flex flex-wrap gap-4 mt-6">
+              <div class="px-4 py-3 text-center rounded-xl bg-white/80">
+                <div class="text-lg font-semibold">2+</div>
+                <div class="text-xs text-gray-500" data-i18n="stat_years">Years</div>
+              </div>
+              <div class="px-4 py-3 text-center rounded-xl bg-white/80">
+                <div class="text-lg font-semibold">20+</div>
+                <div class="text-xs text-gray-500" data-i18n="stat_designs">Unique Designs</div>
+              </div>
+              <div class="px-4 py-3 text-center rounded-xl bg-white/80">
+                <div class="text-lg font-semibold">4.8/5</div>
+                <div class="text-xs text-gray-500" data-i18n="stat_rating">Customer rating</div>
+              </div>
+            </div>
+          </div>
+
+      
+        </div>
+      </div>
+
+    </section>
+
+    <!-- SERVICES -->
+    <section id="services" class="mt-14">
+      <div class="mx-auto mb-8 max-w-4xl text-center">
+        <h2 class="text-2xl font-bold" data-i18n="services_title">Our Services</h2>
+        <p class="mt-2 text-gray-500" data-i18n="services_sub">Custom sublimation printing, team jerseys, merchandise, and full finishing.</p>
+      </div>
+
+      <div class="grid grid-cols-1 gap-6 mx-auto max-w-6xl sm:grid-cols-2 lg:grid-cols-3">
+        <article class="p-6 bg-white rounded-2xl transition card-hover">
+          <h3 class="mb-2 font-semibold" data-i18n="svc_sublimation">Sublimation Custom</h3>
+          <p class="text-sm text-gray-500" data-i18n="svc_sublimation_desc">Full-color transfers for jerseys, shirts, and activewear with durable color.</p>
+        </article>
+
+        <article class="p-6 bg-white rounded-2xl transition card-hover">
+          <h3 class="mb-2 font-semibold" data-i18n="svc_merch">Merch & Promo</h3>
+          <p class="text-sm text-gray-500" data-i18n="svc_merch_desc">Mugs, caps, pillows and event merch — branded and ready for sale.</p>
+        </article>
+
+        <article class="p-6 bg-white rounded-2xl transition card-hover">
+          <h3 class="mb-2 font-semibold" data-i18n="svc_sports">Team Kits & Jerseys</h3>
+          <p class="text-sm text-gray-500" data-i18n="svc_sports_desc">Designs for clubs, schools & corporate teams — bespoke and comfortable.</p>
+        </article>
+
+        <article class="p-6 bg-white rounded-2xl transition card-hover">
+          <h3 class="mb-2 font-semibold" data-i18n="svc_design">Design Support</h3>
+          <p class="text-sm text-gray-500" data-i18n="svc_design_desc">Graphic support from concept to print-ready files.</p>
+        </article>
+
+        <article class="p-6 bg-white rounded-2xl transition card-hover">
+          <h3 class="mb-2 font-semibold" data-i18n="svc_sewing">Sewing & Finishing</h3>
+          <p class="text-sm text-gray-500" data-i18n="svc_sewing_desc">Quality control, cutting & professional finishing services.</p>
+        </article>
+
+        <article class="p-6 bg-white rounded-2xl transition card-hover">
+          <h3 class="mb-2 font-semibold" data-i18n="svc_delivery">Packaging & Delivery</h3>
+          <p class="text-sm text-gray-500" data-i18n="svc_delivery_desc">Careful packaging and shipping across Malaysia.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- How to order -->
+    <section id="how" class="mt-14">
+      <div class="mx-auto max-w-4xl">
+        <h2 class="mb-4 text-2xl font-bold" data-i18n="how_title">How to Order</h2>
+        <ol class="space-y-3 list-decimal list-inside text-gray-700">
+          <li data-i18n="how_step1"><strong>Contact us</strong> via WhatsApp or social DM to discuss your idea.</li>
+          <li data-i18n="how_step2"><strong>Design review</strong> and mockups are provided for approval.</li>
+          <li data-i18n="how_step3"><strong>Confirm order</strong> and provide 20% deposit.</li>
+          <li data-i18n="how_step4"><strong>Production</strong> typically 3–7 business days.</li>
+          <li data-i18n="how_step5"><strong>Delivery</strong> and final payment on completion.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Customers carousel -->
+    <section id="customers" class="mt-14">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 class="text-2xl font-bold" data-i18n="customers_title">Previous Customers</h2>
+          <p class="text-sm text-gray-500" data-i18n="customers_sub">A small selection of happy clients & completed jobs.</p>
+        </div>
+
+        <div class="flex gap-2 items-center">
+          <button id="prevBtn" aria-label="Previous" class="p-2 bg-white rounded-full shadow-sm focus-omaf">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600" viewBox="0 0 20 20" fill="currentColor"><path d="M12.293 16.293a1 1 0 010-1.414L15.586 11H5a1 1 0 110-2h10.586l-3.293-3.879a1 1 0 111.556-1.28l5 6a1 1 0 010 1.28l-5 6a1 1 0 01-1.556 0z"/></svg>
+          </button>
+          <button id="nextBtn" aria-label="Next" class="p-2 bg-white rounded-full shadow-sm focus-omaf">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600 transform rotate-180" viewBox="0 0 20 20" fill="currentColor"><path d="M12.293 16.293a1 1 0 010-1.414L15.586 11H5a1 1 0 110-2h10.586l-3.293-3.879a1 1 0 111.556-1.28l5 6a1 1 0 010 1.28l-5 6a1 1 0 01-1.556 0z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="relative">
+        <div id="carousel" class="overflow-x-auto px-2 py-2 carousel-track no-scrollbar touch-pan-x">
+          <!-- example slides -->
+          <article class="p-4 carousel-slide">
+            <img src="AADK DAH.png" alt="Customer job 1" class="object-cover mb-3 w-full h-40 rounded-lg" loading="lazy">
+            <div class="text-sm font-semibold">AADK DAH</div>
+            <p class="mt-1 text-xs text-gray-500">Team jerseys for tournament — vibrant and durable.</p>
+          </article>
+
+          <article class="p-4 carousel-slide">
+            <img src="BRUNSWICK.png" alt="Customer job 2" class="object-cover mb-3 w-full h-40 rounded-lg" loading="lazy">
+            <div class="text-sm font-semibold">BRUNSWICK</div>
+            <p class="mt-1 text-xs text-gray-500">Bownling Jersey for tournament</p>
+          </article>
+
+          <article class="p-4 carousel-slide">
+            <img src="H&S SUPPLY.png" alt="Customer job 3" class="object-cover mb-3 w-full h-40 rounded-lg" loading="lazy">
+            <div class="text-sm font-semibold">H&S SUPPLY</div>
+            <p class="mt-1 text-xs text-gray-500">Work Jersey</p>
+          </article>
+
+          <article class="p-4 carousel-slide">
+            <img src="SMK MADAI.png" alt="Customer job 4" class="object-cover mb-3 w-full h-40 rounded-lg" loading="lazy">
+            <div class="text-sm font-semibold">SMK MADAI</div>
+            <p class="mt-1 text-xs text-gray-500">School activity jersey</p>
+          </article>
+
+          
+          <article class="p-4 carousel-slide">
+            <img src="test1.jpg" alt="Customer job 4" class="object-cover mb-3 w-full h-40 rounded-lg" loading="lazy">
+            <div class="text-sm font-semibold">SMK MADAI</div>
+            <p class="mt-1 text-xs text-gray-500">School activity jersey</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+  <!-- CONTACT -->
+<section id="contact" class="mt-16">
+  <div class="grid grid-cols-1 gap-8 items-start mx-auto max-w-4xl md:grid-cols-2">
+    <div>
+      <h3 class="mb-3 text-xl font-bold" data-i18n="contact_title">Contact OMAF</h3>
+      <p class="mb-4 text-gray-600" data-i18n="contact_sub">DM on Instagram or open our Shopee store. We respond quickly via WhatsApp for orders.</p>
+
+      <ul class="space-y-3 text-sm text-gray-700">
+        <li><strong data-i18n="label_phone">Phone:</strong> <a class="text-omaf-icon" href="tel:+60 14-836 7966">+60 14-836 7966</a></li>
+        <li><strong data-i18n="label_address">Location:</strong> Malaysia</li>
+        <li class="flex gap-2 pt-2">
+          <!-- Instagram -->
+          <a class="inline-flex gap-2 items-center px-3 py-2 text-sm bg-white rounded-lg border shadow-sm hover:shadow-md text-omaf-icon"
+             href="https://www.instagram.com/omafapparel/" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 2h10a5 5 0 015 5v10a5 5 0 01-5 5H7a5 5 0 01-5-5V7a5 5 0 015-5zm5 6a4 4 0 100 8 4 4 0 000-8zm6.5-3a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
+            Instagram
+          </a>
+
+          <!-- Shopee -->
+          <a class="inline-flex gap-2 items-center px-3 py-2 text-sm bg-white rounded-lg border shadow-sm hover:shadow-md text-omaf-icon"
+             href="https://shopee.com.my/omafapparel" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9 2 6 4.5 6 8v1H4v13h16V9h-2V8c0-3.5-3-6-6-6zm0 2c2.2 0 4 1.6 4 4v1H8V8c0-2.4 1.8-4 4-4zm-3 9h6v2h-6v-2z"/></svg>
+            Shopee
+          </a>
+
+          <!-- TikTok -->
+          <a class="inline-flex gap-2 items-center px-3 py-2 text-sm bg-white rounded-lg border shadow-sm hover:shadow-md text-omaf-icon"
+             href="https://www.tiktok.com/@omafapparel" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8.04a5.2 5.2 0 01-1.25-.17 5.07 5.07 0 01-1.93-.99V15a4 4 0 11-4-4v2.1a2 2 0 102 2V2h3a5 5 0 004 4.9v1.14A6.8 6.8 0 0116 8.04z"/></svg>
+            TikTok
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- FORM -->
+    <div class="p-6 bg-white rounded-2xl shadow-sm">
+      <h4 class="mb-2 font-semibold" data-i18n="form_title">Quick Inquiry</h4>
+      <p class="mb-4 text-sm text-gray-500" data-i18n="form_sub">Tell us what you need — we'll get back within 24 hours.</p>
+
+      <form id="inquiryForm" class="space-y-3">
+        <div>
+          <label class="block mb-1 text-xs text-gray-600" data-i18n="lbl_name">Name</label>
+          <input id="name" class="p-2 w-full text-sm rounded-md border border-gray-200 focus:shadow-outline focus-omaf" placeholder="Your name" required>
+        </div>
+
+        <div>
+          <label class="block mb-1 text-xs text-gray-600" data-i18n="lbl_phone">Phone / WhatsApp</label>
+          <input id="contact-phone" class="p-2 w-full text-sm rounded-md border border-gray-200 focus:shadow-outline focus-omaf" placeholder="011-XXXX XXXX" required>
+        </div>
+
+        <div>
+          <label class="block mb-1 text-xs text-gray-600" data-i18n="lbl_msg">Message</label>
+          <textarea id="message" rows="4" class="p-2 w-full text-sm rounded-md border border-gray-200 focus:shadow-outline focus-omaf" placeholder="Design idea, qty, sizes..."></textarea>
+        </div>
+
+        <button id="sendBtn" class="px-4 py-2 text-sm font-semibold text-black rounded-lg omaf-gradient focus-omaf"
+                data-i18n="btn_send" type="submit">
+          Send
+        </button>
+
+        <div id="formFeedback" class="hidden text-sm text-green-600">Redirecting to WhatsApp...</div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- AUTO-REDIRECT TO WHATSAPP SCRIPT -->
+<script>
+document.getElementById("inquiryForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("contact-phone").value.trim();
+    const message = document.getElementById("message").value.trim();
+
+    const waNumber = "60148367966"; 
+    
+    const fullMsg =
+`New Inquiry from OMAF Website:
+----------------------
+Name: ${name}
+Phone: ${phone}
+Message: ${message}`;
+
+    const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(fullMsg)}`;
+
+    document.getElementById("formFeedback").classList.remove("hidden");
+
+    // Redirect
+    window.location.href = waUrl;
+});
+</script>
+
+
+    <!-- FOOTER -->
+    <footer class="mt-16 mb-12 text-sm text-gray-500">
+      <div class="px-6 mx-auto max-w-6xl">
+        <div class="flex flex-col gap-6 md:flex-row md:justify-between md:items-center">
+          <div>
+            <div class="flex gap-3 items-center">
+              <img src="Asset 2.svg" alt="OMAF" class="h-8" loading="lazy">
+              <div class="text-xs">© <span id="copyright-year"></span> OMAF Apparel</div>
+            </div>
+            <div class="mt-2 text-xs text-gray-400">Designed your dreams</div>
+          </div>
+
+          <div class="flex gap-4 items-center">
+            <a class="text-gray-500 hover:text-omaf-icon" href="#" data-i18n="footer_terms">Terms</a>
+            <a class="text-gray-500 hover:text-omaf-icon" href="#" data-i18n="footer_privacy">Privacy</a>
+            <a class="text-gray-500 hover:text-omaf-icon" href="https://www.instagram.com/omafapparel/" target="_blank">Instagram</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- Inline JS: i18n, animations, parallax, carousel -->
+  <script>
+    /* -----------------------
+       TRANSLATIONS (EN/BM)
+       ----------------------- */
+    const translations = {
+      en: {
+        nav_home:"Home", nav_services:"Services", nav_how:"How to Order", nav_customers:"Customers", nav_contact:"Contact",
+        cta_order:"Order Now", cta_order2:"Order Now", hero_tag:"OMAF Apparel",
+        hero_heading:"Custom sublimation & sportswear — quality you can trust",
+        hero_sub:"We produce jerseys, T-shirts and merchandise with durable printing and modern designs. Fast quotes, flexible runs.",
+        btn_services:"View Services", stat_years:"Years", stat_designs:"Unique Designs", stat_rating:"Customer rating",
+        services_title:"Our Services", services_sub:"Custom sublimation printing, team jerseys, merchandise, and full finishing.",
+        svc_sublimation:"Sublimation Custom", svc_sublimation_desc:"Full-color transfers for jerseys, shirts, and activewear with durable color.",
+        svc_merch:"Merch & Promo", svc_merch_desc:"Mugs, caps, pillows and event merch — branded and ready for sale.",
+        svc_sports:"Team Kits & Jerseys", svc_sports_desc:"Designs for clubs, schools & corporate teams — bespoke and comfortable.",
+        svc_design:"Design Support", svc_design_desc:"Graphic support from concept to print-ready files.",
+        svc_sewing:"Sewing & Finishing", svc_sewing_desc:"Quality control, cutting & professional finishing services.",
+        svc_delivery:"Packaging & Delivery", svc_delivery_desc:"Careful packaging and shipping across Malaysia.",
+        how_title:"How to Order",
+        how_step1:"Contact us via WhatsApp or social DM to discuss your idea.",
+        how_step2:"Design review and mockups are provided for approval.",
+        how_step3:"Confirm order and provide 20% deposit.",
+        how_step4:"Production typically 3–7 business days.",
+        how_step5:"Delivery and final payment on completion.",
+        customers_title:"Previous Customers", customers_sub:"A small selection of happy clients & completed jobs.",
+        contact_title:"Contact OMAF", contact_sub:"DM on Instagram or open our Shopee store. We respond quickly via WhatsApp for orders.",
+        label_phone:"Phone:", label_email:"Email:", label_address:"Location:",
+        form_title:"Quick Inquiry", form_sub:"Tell us what you need — we'll get back within 24 hours.",
+        lbl_name:"Name", lbl_phone:"Phone / WhatsApp", lbl_msg:"Message", btn_send:"Send", btn_whatsapp:"Open WhatsApp",
+        footer_terms:"Terms", footer_privacy:"Privacy"
+      },
+      bm: {
+        nav_home:"Utama", nav_services:"Servis", nav_how:"Cara Tempahan", nav_customers:"Pelanggan", nav_contact:"Hubungi",
+        cta_order:"Tempah Sekarang", cta_order2:"Tempah Sekarang", hero_tag:"OMAF Apparel",
+        hero_heading:"Sublimation & Pakaian Sukan Tersuai — Kualiti Terjamin",
+        hero_sub:"Kami hasilkan jersi, T-shirt dan merchandise dengan cetakan tahan lama dan reka bentuk moden. Sebut harga pantas, tempahan fleksibel.",
+        btn_services:"Lihat Servis", stat_years:"Tahun", stat_designs:"Rekaan Unik", stat_rating:"Penilaian Pelanggan",
+        services_title:"Servis Kami", services_sub:"Cetakan sublimation, jersi pasukan, merchandise dan kerja kemasan penuh.",
+        svc_sublimation:"Sublimation Custom", svc_sublimation_desc:"Pemindahan penuh-warna untuk jersi, baju dan pakaian sukan dengan warna tahan lama.",
+        svc_merch:"Merch & Promo", svc_merch_desc:"Cawan, topi, bantal dan merchandise acara — berjenama dan sedia jual.",
+        svc_sports:"Pakaian Sukan & Jersi", svc_sports_desc:"Reka bentuk untuk kelab, sekolah & pasukan korporat — eksklusif dan selesa.",
+        svc_design:"Sokongan Reka Bentuk", svc_design_desc:"Sokongan grafik dari konsep ke fail siap cetak.",
+        svc_sewing:"Jahitan & Kemasan", svc_sewing_desc:"Kawalan kualiti, pemotongan & jahitan profesional.",
+        svc_delivery:"Pembungkusan & Penghantaran", svc_delivery_desc:"Pembungkusan rapi dan penghantaran ke seluruh Malaysia.",
+        how_title:"Cara Tempahan",
+        how_step1:"Hubungi kami melalui WhatsApp atau DM media sosial untuk bincang idea anda.",
+        how_step2:"Semakan reka bentuk dan mockup dihantar untuk pengesahan.",
+        how_step3:"Sahkan pesanan dan berikan deposit 20%.",
+        how_step4:"Produksi biasanya 3–7 hari bekerja.",
+        how_step5:"Penghantaran dan pembayaran baki selepas siap.",
+        customers_title:"Pelanggan Kami", customers_sub:"Pilihan kecil pelanggan yang berpuas hati & hasil kerja.",
+        contact_title:"Hubungi OMAF", contact_sub:"DM di Instagram atau buka kedai Shopee kami. Kami cepat balas melalui WhatsApp untuk tempahan.",
+        label_phone:"Telefon:", label_email:"Emel:", label_address:"Lokasi:",
+        form_title:"Pertanyaan Pantas", form_sub:"Beritahu kami keperluan anda — kami akan balas dalam 24 jam.",
+        lbl_name:"Nama", lbl_phone:"Telefon / WhatsApp", lbl_msg:"Mesej", btn_send:"Hantar", btn_whatsapp:"Buka WhatsApp",
+        footer_terms:"Terma", footer_privacy:"Privasi"
+      }
+    };
+
+    // set and apply language
+    let lang = localStorage.getItem('omaf_lang') || 'en';
+    const applyTranslations = () => {
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) el.textContent = translations[lang][key];
+      });
+      document.getElementById('hero-heading').textContent = translations[lang].hero_heading;
+      document.getElementById('hero-sub').textContent = translations[lang].hero_sub;
+      const brandSub = document.getElementById('brand-sub');
+      if (brandSub) brandSub.textContent = translations[lang].hero_tag;
+      document.getElementById('lang-en').setAttribute('aria-pressed', lang === 'en');
+      document.getElementById('lang-bm').setAttribute('aria-pressed', lang === 'bm');
+    };
+    document.getElementById('lang-en').addEventListener('click', () => { lang='en'; localStorage.setItem('omaf_lang','en'); applyTranslations(); });
+    document.getElementById('lang-bm').addEventListener('click', () => { lang='bm'; localStorage.setItem('omaf_lang','bm'); applyTranslations(); });
+    applyTranslations();
+
+    // smooth scroll anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', (e) => {
+        const href = a.getAttribute('href');
+        if (href && href.length > 1) {
+          const el = document.querySelector(href);
+          if (el) {
+            e.preventDefault();
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      });
+    });
+
+    // fade-in on scroll
+    const fadeObserver = new IntersectionObserver((entries) => {
+      entries.forEach(ent => {
+        if (ent.isIntersecting) { ent.target.classList.add('opacity-100','translate-y-0'); ent.target.classList.remove('opacity-0','translate-y-6'); fadeObserver.unobserve(ent.target); }
+      });
+    }, { threshold: 0.12 });
+
+    // mark many sections initially hidden via utility classes then observe
+    document.querySelectorAll('section, .card-hover, .carousel-slide').forEach(el => {
+      // add initial tailwind classes for animation
+      el.classList.add('transition','duration-700','opacity-0','translate-y-6');
+      fadeObserver.observe(el);
+    });
+
+    // parallax effect for hero
+    const hero = document.querySelector('.hero-bg');
+    window.addEventListener('scroll', () => {
+      if (!hero) return;
+      const scrolled = window.scrollY;
+      hero.style.transform = `translateY(${Math.min(scrolled * 0.1, 80)}px)`;
+    }, { passive: true });
+
+    // mobile menu toggle
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileNav = document.getElementById('mobile-nav');
+    menuBtn.addEventListener('click', () => {
+      const expanded = menuBtn.getAttribute('aria-expanded') === 'true';
+      menuBtn.setAttribute('aria-expanded', (!expanded).toString());
+      mobileNav.classList.toggle('hidden');
+      document.getElementById('menu-open').classList.toggle('hidden');
+      document.getElementById('menu-close').classList.toggle('hidden');
+    });
+
+    // carousel
+    (function initCarousel(){
+      const carousel = document.getElementById('carousel');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      
+      // Check if carousel elements exist
+      if (!carousel || !prevBtn || !nextBtn) {
+        console.warn('Carousel elements not found');
+        return;
+      }
+      
+      const step = 320;
+      let auto = null;
+
+      const startAuto = () => { stopAuto(); auto = setInterval(()=> carousel.scrollBy({left: step, behavior:'smooth'}), 2800); };
+      const stopAuto = () => { if (auto) clearInterval(auto); auto = null; };
+
+      prevBtn.addEventListener('click', ()=> { carousel.scrollBy({left:-step, behavior:'smooth'}); });
+      nextBtn.addEventListener('click', ()=> { carousel.scrollBy({left:step, behavior:'smooth'}); });
+
+      // drag
+      let isDown=false, startX=0, scrollLeft=0;
+      carousel.addEventListener('mousedown', (e)=>{ isDown=true; carousel.classList.add('cursor-grabbing'); startX = e.pageX - carousel.offsetLeft; scrollLeft = carousel.scrollLeft; stopAuto(); });
+      window.addEventListener('mouseup', ()=>{ isDown=false; carousel.classList.remove('cursor-grabbing'); startAuto(); });
+      carousel.addEventListener('mousemove', (e)=>{ if(!isDown) return; e.preventDefault(); const x = e.pageX - carousel.offsetLeft; const walk = (x - startX); carousel.scrollLeft = scrollLeft - walk; });
+
+      // touch
+      let tStartX=0, tScroll=0;
+      carousel.addEventListener('touchstart', (e)=>{ tStartX = e.touches[0].clientX; tScroll = carousel.scrollLeft; stopAuto(); }, {passive:true});
+      carousel.addEventListener('touchmove', (e)=>{ const dx = e.touches[0].clientX - tStartX; carousel.scrollLeft = tScroll - dx; }, {passive:true});
+      carousel.addEventListener('touchend', ()=> startAuto());
+
+      carousel.addEventListener('mouseenter', stopAuto);
+      carousel.addEventListener('mouseleave', startAuto);
+      carousel.addEventListener('focusin', stopAuto);
+      carousel.addEventListener('focusout', startAuto);
+
+      carousel.setAttribute('tabindex','0');
+      carousel.addEventListener('keydown', (e)=> { if(e.key==='ArrowLeft') carousel.scrollBy({left:-step, behavior:'smooth'}); if(e.key==='ArrowRight') carousel.scrollBy({left:step, behavior:'smooth'}); });
+
+      startAuto();
+    })();
+
+    // Form submission is handled by the WhatsApp redirect script above
+
+    const waBtn = document.getElementById('waBtn');
+    if (waBtn) {
+      waBtn.addEventListener('click', () => {
+        const phone = '011XXXXXXXX'; // replace with real number
+        const text = encodeURIComponent(lang==='en' ? 'Hi OMAF, I want to enquire about bulk printing.' : 'Hai OMAF, saya ingin bertanya mengenai cetakan pukal.');
+        const url = `https://wa.me/${phone.replace(/[^\d]/g,'')}?text=${text}`; window.open(url, '_blank');
+      });
+    }
+
+    // set copyright year
+    document.getElementById('copyright-year').textContent = new Date().getFullYear();
+
+    // initial fade reveal for hero elements (small delay)
+    window.addEventListener('load', () => {
+      document.querySelectorAll('.hero-bg .transition').forEach((el,i)=> setTimeout(()=> el.classList.remove('opacity-0','translate-y-6'), 120 + i*80));
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+
